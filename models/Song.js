@@ -1,14 +1,41 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const songSchema = new Schema({
-  title: { type: String, required: true },
-  artist: { type: Schema.Types.ObjectId, ref: 'Artist', required: true },
-  views: { type: Number, default: 0 },
-  audioLink: { type: String, required: true },
-  imageLink: { type: String },
-  album: { type: Schema.Types.ObjectId, ref: 'Album' }
+const commentSchema = new mongoose.Schema({
+  text: String,
+  timestamp: Date,
+  likes: Number,
+  user: {
+    id: mongoose.Schema.Types.ObjectId,
+    name: String,
+    image: String
+  },
+  replies: [{
+    text: String,
+    timestamp: Date,
+    likes: Number,
+    user: {
+      id: mongoose.Schema.Types.ObjectId,
+      name: String,
+      image: String
+    }
+  }]
 });
 
-const Song = mongoose.model('Song', songSchema);
-module.exports = Song;
+const songSchema = new mongoose.Schema({
+  name: String,
+  artist: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Artist'
+  },
+  album: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Album'
+  },
+  image: String,
+  listens: Number,
+  likes: Number,
+  shares: Number,
+  comments: [commentSchema]
+});
+
+module.exports = mongoose.model('Song', songSchema);
