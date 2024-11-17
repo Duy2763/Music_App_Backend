@@ -35,6 +35,7 @@ const songSchema = new mongoose.Schema({
   listens: Number,
   likes: Number,
   shares: Number,
+  linkAudio: String,
   comments: [commentSchema]
 });
 
