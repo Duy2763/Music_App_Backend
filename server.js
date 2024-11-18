@@ -3,13 +3,12 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const userRoutes = require('./routes/userRoutes');
-const songRoutes = require('./routes/songRoutes');
-const albumRoutes = require('./routes/albumRoutes');
-const artistRoutes = require('./routes/artistRoutes');
-
 const app = express();
 const port = process.env.PORT || 3000; // Sử dụng biến môi trường PORT
+
+const songRoutes = require('./routes/songRoutes');
+const artistRoutes = require('./routes/artistRoutes');
+const albumRoutes = require('./routes/albumRoutes');
 
 // Kết nối MongoDB
 mongoose.connect(process.env.MONGODB_URI, { // Sử dụng biến môi trường MONGODB_URI
@@ -27,10 +26,10 @@ db.once('open', () => {
 app.use(bodyParser.json());
 
 // Routes
-app.use('/users', userRoutes);
-app.use('/songs', songRoutes);
-app.use('/albums', albumRoutes);
-app.use('/artists', artistRoutes);
+app.use('/api', songRoutes);
+app.use('/api', artistRoutes);
+app.use('/api', albumRoutes);
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
