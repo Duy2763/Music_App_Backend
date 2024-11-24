@@ -64,7 +64,6 @@ router.get('/songs-by-album/:albumId', async (req, res) => {
   }
 });
 
-
 // Route để lấy các bài hát theo ID nghệ sĩ
 router.get('/songs-by-artist/:artistId', async (req, res) => {
   try {
@@ -75,5 +74,101 @@ router.get('/songs-by-artist/:artistId', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Route để thêm reply vào comment
+router.post('/songs/:songId/comments/:commentId/replies', async (req, res) => {
+  const { songId, commentId } = req.params;
+  const { text, userId, userName, userImage } = req.body;
+
+  try {
+    // Tìm bài hát bằng songId
+    const song = await Song.findById(songId);
+    if (!song) {
+      return res.status(404).json({ message: 'Song not found' });
+    }
+
+    // Tìm comment trong bài hát đó bằng commentId
+    const comment = song.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    // Tạo reply mới
+    const newReply = {
+      text,
+      timestamp: new Date(),
+      likes: 0,
+      user: {
+        id: new mongoose.Types.ObjectId(userId),
+        name: userName,
+        image: userImage
+      }
+    };
+
+    // Thêm reply vào comment
+    comment.replies.push(newReply);
+    await song.save();
+
+    // Trả về phản hồi thành công
+    res.status(201).json({ 
+      message: 'Reply added successfully', 
+      reply: {
+        _id: comment.replies[comment.replies.length - 1]._id,
+        text: newReply.text,
+        timestamp: newReply.timestamp,
+        likes: newReply.likes,
+        user: newReply.user
+      }
+    });
+  } catch (error) {
+    console.error('Error adding reply:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Route để thêm comment vào bài hát
+router.post('/songs/:songId/comments', async (req, res) => {
+  const { songId } = req.params;
+  const { text, userId, userName, userImage } = req.body;
+
+  try {
+    const song = await Song.findById(songId);
+    if (!song) {
+      return res.status(404).json({ message: 'Song not found' });
+    }
+
+    const newComment = {
+      text,
+      timestamp: new Date(),
+      likes: 0,
+      user: {
+        id: new mongoose.Types.ObjectId(userId),
+        name: userName,
+        image: userImage
+      },
+      replies: []
+    };
+
+    song.comments.push(newComment);
+    await song.save();
+
+    res.status(201).json({ 
+      message: 'Comment added successfully', 
+      comment: {
+        _id: song.comments[song.comments.length - 1]._id,
+        text: newComment.text,
+        timestamp: newComment.timestamp,
+        likes: newComment.likes,
+        user: newComment.user,
+        replies: newComment.replies
+      }
+    });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 module.exports = router;

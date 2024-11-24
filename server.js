@@ -11,6 +11,7 @@ const port = process.env.PORT || 3001; // Sử dụng biến môi trường PORT
 const songRoutes = require('./routes/songRoutes');
 const artistRoutes = require('./routes/artistRoutes');
 const albumRoutes = require('./routes/albumRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 
 // Cấu hình CORS
@@ -48,6 +49,7 @@ db.once('open', () => {
 app.use('/', songRoutes);
 app.use('/', artistRoutes);
 app.use('/', albumRoutes);
+app.use('/', userRoutes)
 
 
 app.listen(port, () => {
